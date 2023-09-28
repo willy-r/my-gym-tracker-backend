@@ -31,6 +31,7 @@ async function bootstrap() {
       You can check the repository [*here*](https://github.com/willy-r/my-gym-tracker-backend)!
     `,
     )
+    .addBearerAuth()
     .build();
   const swaggerDocument = SwaggerModule.createDocument(app, swaggerConfig);
   SwaggerModule.setup(
