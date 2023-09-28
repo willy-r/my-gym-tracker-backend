@@ -24,13 +24,7 @@ async function bootstrap() {
 
   const swaggerConfig = new DocumentBuilder()
     .setTitle('My Gym Tracker API')
-    .setDescription(
-      `
-      **My Gym Tracker API of the My Gym Tracker application**
-
-      You can check the repository [*here*](https://github.com/willy-r/my-gym-tracker-backend)!
-    `,
-    )
+    .setDescription('**My Gym Tracker API of the My Gym Tracker application**')
     .addBearerAuth()
     .build();
   const swaggerDocument = SwaggerModule.createDocument(app, swaggerConfig);
