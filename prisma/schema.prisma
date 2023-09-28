@@ -9,3 +9,72 @@ datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
+
+model User {
+  id                 String    @id @default(uuid())
+  firstName          String    @map("first_name") @db.VarChar(100)
+  lastName           String?   @map("last_name") @db.VarChar(100)
+  email              String    @unique @db.VarChar(100)
+  hashedPassword     String    @map("hashed_password")
+  hashedRefreshToken String?   @map("hashed_refresh_token")
+  role               UserRole  @default(USER)
+  workouts           Workout[]
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("users")
+}
+
+model Workout {
+  id                String            @id @default(uuid())
+  title             String            @db.VarChar(50)
+  description       String            @db.VarChar(100)
+  weekDay           WeekDay           @map("week_day")
+  restTimeSeconds   Int               @map("rest_time_seconds")
+  cardioTimeSeconds Int?              @map("cardio_time_seconds")
+  User              User?             @relation(fields: [userId], references: [id])
+  userId            String?           @map("user_id")
+  exercises         WorkoutExercise[]
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("workouts")
+}
+
+model Exercise {
+  id       String            @id @default(uuid())
+  name     String            @unique @db.VarChar(50)
+  workouts WorkoutExercise[]
+
+  @@map("exercises")
+}
+
+model WorkoutExercise {
+  id         String    @id @default(uuid())
+  sets       Int
+  reps       Int
+  wight      Float?
+  Workout    Workout?  @relation(fields: [workoutId], references: [id])
+  workoutId  String?   @map("workout_id")
+  Exercise   Exercise? @relation(fields: [exerciseId], references: [id])
+  exerciseId String?   @map("exercise_id")
+
+  @@map("workout_exercises")
+}
+
+enum UserRole {
+  USER
+  ADMIN
+}
+
+enum WeekDay {
+  MONDAY
+  TUESDAY
+  WEDNESDAY
+  THURSDAY
+  FRIDAY
+  SATURDAY
+  SUNDAY
+}
