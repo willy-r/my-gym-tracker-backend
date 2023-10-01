@@ -107,4 +107,15 @@ describe('AuthService Unit', () => {
       );
     });
   });
+
+  describe('logout()', () => {
+    const userEmail = 'test@test.com';
+
+    test('when logout is called then it should call UserService', async () => {
+      await authService.logout(userEmail);
+      expect(userService.removeHashedRefreshToken).toHaveBeenCalledWith(
+        userEmail,
+      );
+    });
+  });
 });

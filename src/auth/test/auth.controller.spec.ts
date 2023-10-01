@@ -57,4 +57,17 @@ describe('AuthController Unit', () => {
       );
     });
   });
+
+  describe('logout()', () => {
+    const userEmail = 'test@test.com';
+
+    test('when logout is called then it should call AuthService', async () => {
+      await authController.logout(userEmail);
+      expect(authService.logout).toHaveBeenCalledWith(userEmail);
+    });
+
+    test('when logout is called then it should return nothing', async () => {
+      expect(await authController.logout(userEmail)).toBeUndefined();
+    });
+  });
 });

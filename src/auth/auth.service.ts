@@ -57,6 +57,10 @@ export class AuthService {
     return tokens;
   }
 
+  async logout(email: string): Promise<void> {
+    await this.userService.removeHashedRefreshToken(email);
+  }
+
   async verifyPasswords(
     hashedPassword: string | undefined,
     password: string,

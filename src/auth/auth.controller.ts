@@ -10,7 +10,7 @@ import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { AuthService } from './auth.service';
 import { LoginDto, RegisterDto } from './dtos';
 import { TokensInfo } from './types';
-import { PublicRoute } from '../shared/decorators';
+import { GetCurrentUser, PublicRoute } from '../shared/decorators';
 
 @Controller('auth')
 @ApiTags('auth')
@@ -30,10 +30,12 @@ export class AuthController {
     return await this.authService.register(registerDto);
   }
 
-  // @ApiBearerAuth()
-  // @Get('logout')
-  // @HttpCode(HttpStatus.NO_CONTENT)
-  // async logout(): Promise<void> {}
+  @ApiBearerAuth()
+  @Get('logout')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  async logout(@GetCurrentUser('email') email: string): Promise<void> {
+    return await this.authService.logout(email);
+  }
 
   //   @Get('refresh-tokens')
   //   async refreshTokens(): Promise<TokensInfo> {}

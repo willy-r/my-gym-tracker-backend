@@ -49,6 +49,20 @@ export class UserService {
     });
   }
 
+  async removeHashedRefreshToken(email: string): Promise<void> {
+    await this.prismaService.user.updateMany({
+      where: {
+        email,
+        hashedRefreshToken: {
+          not: null,
+        },
+      },
+      data: {
+        hashedRefreshToken: null,
+      },
+    });
+  }
+
   async hashRefreshToken(refreshToken: string): Promise<string> {
     return await argon2.hash(refreshToken);
   }
