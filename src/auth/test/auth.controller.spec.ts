@@ -70,4 +70,23 @@ describe('AuthController Unit', () => {
       expect(await authController.logout(userEmail)).toBeUndefined();
     });
   });
+
+  describe('refreshTokens()', () => {
+    const userEmail = 'test@test.com';
+    const refreshToken = tokensInfoStub().refreshToken;
+
+    test('when refreshTokens is called then it should call AuthService', async () => {
+      await authController.refreshTokens(userEmail, refreshToken);
+      expect(authService.refreshTokens).toHaveBeenCalledWith(
+        userEmail,
+        refreshToken,
+      );
+    });
+
+    test('when refreshTokens is called then it should return tokens info', async () => {
+      expect(
+        await authController.refreshTokens(userEmail, refreshToken),
+      ).toEqual(tokensInfoStub());
+    });
+  });
 });

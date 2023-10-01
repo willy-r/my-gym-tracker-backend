@@ -5,12 +5,14 @@ import {
   HttpCode,
   HttpStatus,
   Post,
+  UseGuards,
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { AuthService } from './auth.service';
 import { LoginDto, RegisterDto } from './dtos';
 import { TokensInfo } from './types';
 import { GetCurrentUser, PublicRoute } from '../shared/decorators';
+import { JwtRefreshGuard } from '../shared/guards';
 
 @Controller('auth')
 @ApiTags('auth')
@@ -37,6 +39,14 @@ export class AuthController {
     return await this.authService.logout(email);
   }
 
-  //   @Get('refresh-tokens')
-  //   async refreshTokens(): Promise<TokensInfo> {}
+  @ApiBearerAuth()
+  @PublicRoute()
+  @UseGuards(JwtRefreshGuard)
+  @Get('refresh-tokens')
+  async refreshTokens(
+    @GetCurrentUser('email') email: string,
+    @GetCurrentUser('refreshToken') refreshToken: string,
+  ): Promise<TokensInfo> {
+    return await this.authService.refreshTokens(email, refreshToken);
+  }
 }

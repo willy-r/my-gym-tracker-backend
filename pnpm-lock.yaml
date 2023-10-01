@@ -44,6 +44,9 @@ dependencies:
   class-validator:
     specifier: ^0.14.0
     version: 0.14.0
+  fastify:
+    specifier: ^4.23.2
+    version: 4.23.2
   passport:
     specifier: ^0.6.0
     version: 0.6.0

@@ -33,7 +33,7 @@ export class AuthService {
     });
     // Updates user refresh token on database with the new one.
     await this.userService.updateHashedRefreshToken(
-      user.id,
+      user.email,
       tokens.refreshToken,
     );
     // Returns updated tokens to use on frontend.
@@ -50,7 +50,7 @@ export class AuthService {
     });
     // Update refresh token
     await this.userService.updateHashedRefreshToken(
-      user.id,
+      user.email,
       tokens.refreshToken,
     );
     // return tokens
@@ -61,6 +61,37 @@ export class AuthService {
     await this.userService.removeHashedRefreshToken(email);
   }
 
+  async refreshTokens(
+    email: string,
+    refreshToken: string,
+  ): Promise<TokensInfo> {
+    // Get user by email.
+    const user = await this.userService.findOneByEmail(email);
+    // Verify if user exists or if user has refresh token to update (otherwise user hasn't logged yet)
+    if (!user || !user.hashedRefreshToken) {
+      throw new UnauthorizedException('Access denied');
+    }
+    // Check if refresh tokens matches, throws if not.
+    const refreshTokenMatches = await this.verifyRefreshTokens(
+      user.hashedRefreshToken,
+      refreshToken,
+    );
+    if (!refreshTokenMatches) {
+      throw new UnauthorizedException('Access denied');
+    }
+    // Sign new tokens and update refresh token on database.
+    const updatedTokens = await this.signTokens({
+      email: user.email,
+      role: user.role,
+    });
+    await this.userService.updateHashedRefreshToken(
+      user.email,
+      updatedTokens.refreshToken,
+    );
+    // return update tokens.
+    return updatedTokens;
+  }
+
   async verifyPasswords(
     hashedPassword: string | undefined,
     password: string,
@@ -69,6 +100,13 @@ export class AuthService {
       hashedPassword || (await argon2.hash('dummy-pwd')), // This avoid timing attacks.
       password,
     );
+  }
+
+  async verifyRefreshTokens(
+    hashedRefreshToken: string,
+    refreshToken: string,
+  ): Promise<boolean> {
+    return await argon2.verify(hashedRefreshToken, refreshToken);
   }
 
   async signTokens(jwtPayload: JwtPayload): Promise<TokensInfo> {
