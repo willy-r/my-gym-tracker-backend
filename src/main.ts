@@ -19,7 +19,7 @@ async function bootstrap() {
 
   // Inital configs
   app.enableCors({
-    origin: configService.get<string>('APP_ALLOWED_ORIGINS').split(';'),
+    origin: configService.get('APP_ALLOWED_ORIGINS').split(';'),
   });
 
   const swaggerConfig = new DocumentBuilder()
@@ -28,15 +28,11 @@ async function bootstrap() {
     .addBearerAuth()
     .build();
   const swaggerDocument = SwaggerModule.createDocument(app, swaggerConfig);
-  SwaggerModule.setup(
-    configService.get<string>('APP_DOCS_PATH'),
-    app,
-    swaggerDocument,
-  );
+  SwaggerModule.setup(configService.get('APP_DOCS_PATH'), app, swaggerDocument);
 
   // Server
-  const PORT = configService.get<number>('APP_PORT') || 3000;
-  const HOST = configService.get<string>('APP_HOST') || '0.0.0.0';
+  const PORT = configService.get('APP_PORT') || 3000;
+  const HOST = configService.get('APP_HOST') || '0.0.0.0';
 
   await app.listen(PORT, HOST, () => {
     console.log(`Server listening on ⚡ http://${HOST}:${PORT}`);
