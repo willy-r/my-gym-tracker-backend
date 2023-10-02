@@ -15,45 +15,35 @@ export class AuthService {
   ) {}
 
   async login(loginDto: LoginDto): Promise<TokensInfo> {
-    // Verify if user exists by email.
     const user = await this.userService.findOneByEmail(loginDto.email);
-    // Check using argon2 if passwords matches.
     const passwordMatches = await this.verifyPasswords(
       user?.hashedPassword,
       loginDto.password,
     );
-    // Makes guard condition. If password didn't matches or user doesn't exists throws unauthorized exception.
     if (!passwordMatches || !user) {
       throw new UnauthorizedException('Invalid credentials');
     }
-    // Sign tokens (refresh and access).
     const tokens = await this.signTokens({
       email: user.email,
       role: user.role,
     });
-    // Updates user refresh token on database with the new one.
     await this.userService.updateHashedRefreshToken(
       user.email,
       tokens.refreshToken,
     );
-    // Returns updated tokens to use on frontend.
     return tokens;
   }
 
   async register(registerDto: RegisterDto): Promise<TokensInfo> {
-    // Call user service to create user (should verify if user already exists and throw if exists)
     const user = await this.userService.create(registerDto);
-    // Sign tokens (authenticate user)
     const tokens = await this.signTokens({
       email: user.email,
       role: user.role,
     });
-    // Update refresh token
     await this.userService.updateHashedRefreshToken(
       user.email,
       tokens.refreshToken,
     );
-    // return tokens
     return tokens;
   }
 
@@ -65,13 +55,10 @@ export class AuthService {
     email: string,
     refreshToken: string,
   ): Promise<TokensInfo> {
-    // Get user by email.
     const user = await this.userService.findOneByEmail(email);
-    // Verify if user exists or if user has refresh token to update (otherwise user hasn't logged yet)
     if (!user || !user.hashedRefreshToken) {
       throw new UnauthorizedException('Access denied');
     }
-    // Check if refresh tokens matches, throws if not.
     const refreshTokenMatches = await this.verifyRefreshTokens(
       user.hashedRefreshToken,
       refreshToken,
@@ -79,7 +66,6 @@ export class AuthService {
     if (!refreshTokenMatches) {
       throw new UnauthorizedException('Access denied');
     }
-    // Sign new tokens and update refresh token on database.
     const updatedTokens = await this.signTokens({
       email: user.email,
       role: user.role,
@@ -88,7 +74,6 @@ export class AuthService {
       user.email,
       updatedTokens.refreshToken,
     );
-    // return update tokens.
     return updatedTokens;
   }
 
@@ -97,7 +82,7 @@ export class AuthService {
     password: string,
   ): Promise<boolean> {
     return await argon2.verify(
-      hashedPassword || (await argon2.hash('dummy-pwd')), // This avoid timing attacks.
+      hashedPassword || (await argon2.hash('dummy-pwd')),
       password,
     );
   }
@@ -118,12 +103,10 @@ export class AuthService {
       secret: this.configService.get('REFRESH_TOKEN_SECRET'),
       expiresIn: this.configService.get('REFRESH_TOKEN_EXPIRES'),
     };
-
     const [accessToken, refreshToken] = await Promise.all([
       this.jwtService.signAsync(jwtPayload, accessTokenOptions),
       this.jwtService.signAsync(jwtPayload, refreshTokenOptions),
     ]);
-
     return {
       accessToken,
       refreshToken,
