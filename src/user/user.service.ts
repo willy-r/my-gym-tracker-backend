@@ -38,11 +38,26 @@ export class UserService {
     });
   }
 
-  async findOneByEmailorThrow(email: string): Promise<User | null> {
+  async findOneByEmailOrThrow(email: string): Promise<User> {
     try {
       return await this.prismaService.user.findUniqueOrThrow({
         where: {
           email,
+        },
+      });
+    } catch (err) {
+      if (err.code === 'P2025') {
+        throw new NotFoundException('User not found');
+      }
+      throw err;
+    }
+  }
+
+  async findOneByIdOrThrow(id: string): Promise<User> {
+    try {
+      return await this.prismaService.user.findUniqueOrThrow({
+        where: {
+          id,
         },
       });
     } catch (err) {

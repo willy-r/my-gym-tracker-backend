@@ -1,4 +1,4 @@
-import { Controller, Get } from '@nestjs/common';
+import { Controller, Get, Param } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { GetCurrentUser } from '../shared/decorators';
 import { UserService } from './user.service';
@@ -17,7 +17,15 @@ export class UserController {
   ): Promise<UserResponseDto> {
     return plainToInstance(
       UserResponseDto,
-      await this.userService.findOneByEmail(email),
+      await this.userService.findOneByEmailOrThrow(email),
+    );
+  }
+
+  @Get(':id')
+  async getById(@Param('id') id: string): Promise<UserResponseDto> {
+    return plainToInstance(
+      UserResponseDto,
+      await this.userService.findOneByIdOrThrow(id),
     );
   }
 }

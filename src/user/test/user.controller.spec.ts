@@ -25,7 +25,7 @@ describe('UserController Unit', () => {
 
     test('when getMe is called then it should call UserService', async () => {
       await userController.getMe(userEmail);
-      expect(userService.findOneByEmail).toHaveBeenCalledWith(userEmail);
+      expect(userService.findOneByEmailOrThrow).toHaveBeenCalledWith(userEmail);
     });
 
     test('when getMe is called then it should return UserResponseDto without secrets', async () => {
@@ -37,7 +37,19 @@ describe('UserController Unit', () => {
   });
 
   describe('getById()', () => {
-    test.todo('should pass');
+    const userId = 'mock-uuid';
+
+    test('when getById is called then it should call UserService', async () => {
+      await userController.getById(userId);
+      expect(userService.findOneByIdOrThrow).toHaveBeenCalledWith(userId);
+    });
+
+    test('when getById is called then it should return UserResponseDto without secrets', async () => {
+      const user = await userController.getById(userId);
+      expect(user).toBeInstanceOf(UserResponseDto);
+      expect(user.hashedPassword).toBeUndefined();
+      expect(user.hashedRefreshToken).toBeUndefined();
+    });
   });
 
   describe('getAll()', () => {
