@@ -80,7 +80,18 @@ describe('UserController Unit', () => {
     test.todo('should pass');
   });
 
-  describe('delete()', () => {
-    test.todo('should pass');
+  describe('deleteMe()', () => {
+    const userEmail = userStub().email;
+
+    test('when deleteMe is called then it should call UserService', async () => {
+      await userController.deleteMe(userEmail);
+      expect(userService.deleteOneByEmailOrThrow).toHaveBeenCalledWith(
+        userEmail,
+      );
+    });
+
+    test('when deleteMe is called then it should return nothing', async () => {
+      expect(await userController.deleteMe(userEmail)).toBeUndefined();
+    });
   });
 });

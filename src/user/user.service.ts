@@ -72,6 +72,21 @@ export class UserService {
     return await this.prismaService.user.findMany();
   }
 
+  async deleteOneByEmailOrThrow(email: string): Promise<void> {
+    try {
+      await this.prismaService.user.delete({
+        where: {
+          email,
+        },
+      });
+    } catch (err) {
+      if (err.code === 'P2025') {
+        throw new NotFoundException('User not found');
+      }
+      throw err;
+    }
+  }
+
   async updateHashedRefreshToken(
     email: string,
     refreshToken: string,

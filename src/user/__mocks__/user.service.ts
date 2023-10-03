@@ -6,6 +6,7 @@ export const UserService = jest.fn().mockReturnValue({
   findOneByEmailOrThrow: jest.fn().mockResolvedValue(userStub()),
   findOneByIdOrThrow: jest.fn().mockResolvedValue(userStub()),
   findAll: jest.fn().mockResolvedValue(usersStub()),
+  deleteOneByEmailOrThrow: jest.fn(),
   updateHashedRefreshToken: jest.fn(),
   removeHashedRefreshToken: jest.fn(),
 });

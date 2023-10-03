@@ -1,4 +1,12 @@
-import { Controller, Get, Param, UseGuards } from '@nestjs/common';
+import {
+  Controller,
+  Delete,
+  Get,
+  HttpCode,
+  HttpStatus,
+  Param,
+  UseGuards,
+} from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { UserRole } from '@prisma/client';
 import { plainToInstance } from 'class-transformer';
@@ -38,5 +46,11 @@ export class UserController {
   @Get()
   async getAll(): Promise<UserResponseDto[]> {
     return plainToInstance(UserResponseDto, await this.userService.findAll());
+  }
+
+  @Delete('me')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  async deleteMe(@GetCurrentUser('email') email: string): Promise<void> {
+    await this.userService.deleteOneByEmailOrThrow(email);
   }
 }
