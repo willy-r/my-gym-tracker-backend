@@ -1,9 +1,11 @@
-import { Controller, Get, Param } from '@nestjs/common';
+import { Controller, Get, Param, UseGuards } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
-import { GetCurrentUser } from '../shared/decorators';
+import { UserRole } from '@prisma/client';
+import { plainToInstance } from 'class-transformer';
+import { GetCurrentUser, Roles } from '../shared/decorators';
 import { UserService } from './user.service';
 import { UserResponseDto } from './dtos';
-import { plainToInstance } from 'class-transformer';
+import { RolesGuard } from '../shared/guards';
 
 @ApiBearerAuth()
 @Controller('users')
@@ -21,6 +23,8 @@ export class UserController {
     );
   }
 
+  @Roles(UserRole.ADMIN)
+  @UseGuards(RolesGuard)
   @Get(':id')
   async getById(@Param('id') id: string): Promise<UserResponseDto> {
     return plainToInstance(
@@ -29,6 +33,8 @@ export class UserController {
     );
   }
 
+  @Roles(UserRole.ADMIN)
+  @UseGuards(RolesGuard)
   @Get()
   async getAll(): Promise<UserResponseDto[]> {
     return plainToInstance(UserResponseDto, await this.userService.findAll());
