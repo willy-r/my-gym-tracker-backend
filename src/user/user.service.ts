@@ -6,7 +6,7 @@ import {
 import { User } from '@prisma/client';
 import * as argon2 from 'argon2';
 import { PrismaService } from '../lib/prisma/prisma.service';
-import { CreateUserDto } from './dtos';
+import { CreateUserDto, UpdateUserDto } from './dtos';
 
 @Injectable()
 export class UserService {
@@ -31,7 +31,7 @@ export class UserService {
   }
 
   async findOneByEmail(email: string): Promise<User | null> {
-    return await this.prismaService.user.findUniqueOrThrow({
+    return await this.prismaService.user.findUnique({
       where: {
         email,
       },
@@ -82,6 +82,33 @@ export class UserService {
     } catch (err) {
       if (err.code === 'P2025') {
         throw new NotFoundException('User not found');
+      }
+      throw err;
+    }
+  }
+
+  async updateOneByEmailOrThrow(
+    email: string,
+    updateUserDto: UpdateUserDto,
+  ): Promise<User> {
+    const { password, ...data } = updateUserDto;
+    const hashedPassword = await this.hashPassword(password);
+    try {
+      return await this.prismaService.user.update({
+        where: {
+          email,
+        },
+        data: {
+          ...data,
+          hashedPassword,
+        },
+      });
+    } catch (err) {
+      if (err.code === 'P2025') {
+        throw new NotFoundException('User not found');
+      }
+      if (err?.code === 'P2002') {
+        throw new ConflictException('Email already exists');
       }
       throw err;
     }

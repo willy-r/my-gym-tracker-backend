@@ -2,7 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { UserController } from '../user.controller';
 import { UserService } from '../user.service';
 import { userStub, usersStub } from './stubs';
-import { UserResponseDto } from '../dtos';
+import { UpdateUserDto, UserResponseDto } from '../dtos';
 
 jest.mock('../user.service');
 
@@ -76,8 +76,29 @@ describe('UserController Unit', () => {
     });
   });
 
-  describe('update()', () => {
-    test.todo('should pass');
+  describe('updateMe()', () => {
+    const userEmail = userStub().email;
+    const updateUserDto: UpdateUserDto = {
+      firstName: 'Test Update',
+      lastName: 'Test Update',
+      email: 'test@update.com',
+      password: 'PassStrong123!',
+    };
+
+    test('given valid input when updateMe is called then it should call UserService', async () => {
+      await userController.updateMe(userEmail, updateUserDto);
+      expect(userService.updateOneByEmailOrThrow).toHaveBeenCalledWith(
+        userEmail,
+        updateUserDto,
+      );
+    });
+
+    test('given valid input when updateMe is called then it should return updated user without secrets', async () => {
+      const user = await userController.updateMe(userEmail, updateUserDto);
+      expect(user).toBeInstanceOf(UserResponseDto);
+      expect(user.hashedPassword).toBeUndefined();
+      expect(user.hashedRefreshToken).toBeUndefined();
+    });
   });
 
   describe('deleteMe()', () => {
