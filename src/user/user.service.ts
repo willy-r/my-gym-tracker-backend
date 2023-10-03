@@ -68,6 +68,10 @@ export class UserService {
     }
   }
 
+  async findAll(): Promise<User[]> {
+    return await this.prismaService.user.findMany();
+  }
+
   async updateHashedRefreshToken(
     email: string,
     refreshToken: string,

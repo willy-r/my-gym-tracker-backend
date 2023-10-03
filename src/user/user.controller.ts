@@ -28,4 +28,9 @@ export class UserController {
       await this.userService.findOneByIdOrThrow(id),
     );
   }
+
+  @Get()
+  async getAll(): Promise<UserResponseDto[]> {
+    return plainToInstance(UserResponseDto, await this.userService.findAll());
+  }
 }

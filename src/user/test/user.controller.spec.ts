@@ -1,7 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { UserController } from '../user.controller';
 import { UserService } from '../user.service';
-import { userStub } from './stubs';
+import { userStub, usersStub } from './stubs';
 import { UserResponseDto } from '../dtos';
 
 jest.mock('../user.service');
@@ -53,7 +53,27 @@ describe('UserController Unit', () => {
   });
 
   describe('getAll()', () => {
-    test.todo('should pass');
+    test('when getAll is called then it should call UserService', async () => {
+      await userController.getAll();
+      expect(userService.findAll).toHaveBeenCalled();
+    });
+
+    test('when getAll is called then it should return users without secrets', async () => {
+      const users = await userController.getAll();
+      expect(users).toHaveLength(usersStub().length);
+      users.forEach((user) => {
+        expect(user).toBeInstanceOf(UserResponseDto);
+        expect(user.hashedPassword).toBeUndefined();
+        expect(user.hashedRefreshToken).toBeUndefined();
+      });
+    });
+
+    test('given no users when getAll is called then it should return empty array', async () => {
+      jest.spyOn(userService, 'findAll').mockResolvedValueOnce([]);
+      const users = await userController.getAll();
+      expect(users).toHaveLength(0);
+      expect(users).toEqual([]);
+    });
   });
 
   describe('update()', () => {

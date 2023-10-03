@@ -13,3 +13,7 @@ export const userStub = (): User => {
     updatedAt: new Date('2023-10-01 00:00:00'),
   };
 };
+
+export const usersStub = (): User[] => {
+  return [userStub(), userStub()];
+};
